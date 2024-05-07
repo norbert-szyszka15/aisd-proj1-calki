@@ -13,7 +13,7 @@ double c_od, c_do;
     // FUNKCJE PODCALKOWE
 
 double f3(double x) {
-    return -1;      
+    return x * x;      
 }
 
 double f4(double x) {
@@ -29,39 +29,39 @@ double compute(double(*func)(double), double x) {
 
 double findMin(double(*func)(double)) {
     double x = c_od;
-    double dx = abs(c_do - c_od) / lp;
-    double min = 0;
-    int count = 0;
-    int funcValuesSize = abs(c_do - c_od) * lp;
+    double dx = (c_do - c_od) / lp;
+    double min = compute(func, x); // Inicjalizacja min pierwszą wartością z funcValues
+    int count = 1; // count zaczyna się od 1, bo już policzyliśmy pierwszą wartość
+    int funcValuesSize = fabs(c_do - c_od) * lp;
     double* funcValues = (double*)malloc(funcValuesSize * sizeof(double));
 
     do {
-        funcValues[count] = compute(func, x);
-        if (min > funcValues[count]) { min = funcValues[count]; }
+        funcValues[count - 1] = compute(func, x);
+        if (min > funcValues[count - 1]) { min = funcValues[count - 1]; }
         x += dx;
         count ++;
-    } while ((count <= funcValuesSize) && (x <= c_do));
+    } while ((count < funcValuesSize) && (x < c_do));
 
-    free(funcValues);
+    free(funcValues); // Zwolnienie pamięci po użyciu tablicy
     return min;
 }
 
 double findMax(double(*func)(double)) {
     double x = c_od;
-    double dx = abs(c_do - c_od) / lp;
-    double max = 0;
-    int count = 0;
-    int funcValuesSize = abs(c_do - c_od) * lp;
+    double dx = (c_do - c_od) / lp;
+    double max = compute(func, x); // Inicjalizacja max pierwszą wartością z funcValues
+    int count = 1; // count zaczyna się od 1, bo już policzyliśmy pierwszą wartość
+    int funcValuesSize = fabs(c_do - c_od) * lp;
     double* funcValues = (double*)malloc(funcValuesSize * sizeof(double));
 
     do {
-        funcValues[count] = compute(func, x);
-        if (max < funcValues[count]) { max = funcValues[count]; }
+        funcValues[count - 1] = compute(func, x);
+        if (max < funcValues[count - 1]) { max = funcValues[count - 1]; }
         x += dx;
         count ++;
-    } while ((count <= funcValuesSize) && (x <= c_do));
+    } while ((count < funcValuesSize) && (x < c_do));
 
-    free(funcValues);
+    free(funcValues); // Zwolnienie pamięci po użyciu tablicy
     return max;
 }
 
@@ -116,10 +116,10 @@ double mc(double(*func)(double)) {
     for (int i = 0; i < lp; i++) {
         x = c_od + ((double)rand() / div2);
         y = min + ((double)rand() / div1);
-        if (y <= func(x)) { sum += 1.0 ;}
+        if (y <= func(x)) { sum += 1.0; }
     }
 
-    double rectangleArea = (max - min) * (c_do - c_od);
+    double rectangleArea = range1 * range2;
     result = rectangleArea * sum / lp;
     return result;
 }
