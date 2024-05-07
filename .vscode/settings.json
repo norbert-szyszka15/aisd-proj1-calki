@@ -2,7 +2,8 @@
     "files.associations": {
         "stdio.h": "c",
         "random": "c",
-        "limits": "c"
+        "limits": "c",
+        "stdlib.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled",
     "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
