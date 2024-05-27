@@ -1,11 +1,6 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <time.h>
-
 #include "calki.h"
 
-#define lp 1000
+#define lp 10000000
 
 double c_od, c_do;
 
@@ -30,8 +25,8 @@ double compute(double(*func)(double), double x) {
 double findMin(double(*func)(double)) {
     double x = c_od;
     double dx = (c_do - c_od) / lp;
-    double min = compute(func, x); // Inicjalizacja min pierwszą wartością z funcValues
-    int count = 1; // count zaczyna się od 1, bo już policzyliśmy pierwszą wartość
+    double min = compute(func, x);
+    int count = 1;
     int funcValuesSize = fabs(c_do - c_od) * lp;
     double* funcValues = (double*)malloc(funcValuesSize * sizeof(double));
 
@@ -42,15 +37,15 @@ double findMin(double(*func)(double)) {
         count ++;
     } while ((count < funcValuesSize) && (x < c_do));
 
-    free(funcValues); // Zwolnienie pamięci po użyciu tablicy
+    free(funcValues);
     return min;
 }
 
 double findMax(double(*func)(double)) {
     double x = c_od;
     double dx = (c_do - c_od) / lp;
-    double max = compute(func, x); // Inicjalizacja max pierwszą wartością z funcValues
-    int count = 1; // count zaczyna się od 1, bo już policzyliśmy pierwszą wartość
+    double max = compute(func, x);
+    int count = 1;
     int funcValuesSize = fabs(c_do - c_od) * lp;
     double* funcValues = (double*)malloc(funcValuesSize * sizeof(double));
 
@@ -61,65 +56,79 @@ double findMax(double(*func)(double)) {
         count ++;
     } while ((count < funcValuesSize) && (x < c_do));
 
-    free(funcValues); // Zwolnienie pamięci po użyciu tablicy
+    free(funcValues);
     return max;
+}
+
+double randRange(double min, double max) {
+    double range = (max - min); 
+    double div = RAND_MAX / range;
+
+    return min + (rand() / div);
 }
 
 
     // FUNKCJE LICZACE CALKI
 
 double prostokaty(double(*func)(double)) {
-    double rectangle;
     double x = c_od;
-    double dx = abs(c_do - c_od) / lp;
+    double dx = fabs(c_do - c_od) / lp;
     double result = 0;
 
-    do {
-        rectangle = dx * compute(func, x);
+    for (int i = 0; i < lp; i++) {
+        double rectangle = dx * compute(func, x);
         result += rectangle;
         x += dx;
-    } while (x <= c_do);
+    }
 
     return result;
 }
 
 double trapezy(double(*func)(double)) {
-    double trapeze;
     double a1 = c_od;
-    double dx = (c_do - c_od) / lp;
-    double b1 = dx;
+    double dx = fabs(c_do - c_od) / lp;
     double result = 0;
-
-    do {
-        trapeze = ((compute(func, a1) + compute(func, b1)) * dx) / 2;
+    
+    for (int i = 0; i < lp; i++) {
+        double b1 = a1 + dx;
+        double trapeze = ((func(a1) + func(b1)) * dx) / 2;
         result += trapeze;
-        a1 += dx;
-        b1 += dx;
-    } while (b1 <= c_do);
+        a1 = b1;
+    }
 
     return result;
 }
 
 double mc(double(*func)(double)) {
-    srand(time(NULL));
-    double sum = 0.0;
     double x, y;
-    double min = findMin(func);
     double max = findMax(func);
-    double range1 = max - min;
-    double range2 = c_do - c_od;
-    double div1 = RAND_MAX / range1;
-    double div2 = RAND_MAX / range2;
-    double result;
+    double min = findMin(func);
+    double aboveZero = 0.0;
+    double belowZero = 0.0;
 
+    srand(time(NULL));
 
     for (int i = 0; i < lp; i++) {
-        x = c_od + ((double)rand() / div2);
-        y = min + ((double)rand() / div1);
-        if (y <= func(x)) { sum += 1.0; }
+        x = randRange(c_od, c_do);
+        y = randRange(min, max);
+
+        if (y <= compute(func, x) && y >= 0) {
+            aboveZero += 1;
+        } else if (y >= compute(func, x) && y < 0) {
+            belowZero += 1;
+        }
     }
 
-    double rectangleArea = range1 * range2;
-    result = rectangleArea * sum / lp;
-    return result;
+    double areaAboveZero = (aboveZero / lp) * (c_do - c_od) * max;
+    double areaBelowZero = (belowZero / lp) * (c_do - c_od) * fabs(min);
+
+    if (max >= 0 && min >= 0) {
+        return areaAboveZero;
+    } else if (max > 0 && min < 0) {
+        return areaAboveZero - areaBelowZero;
+    } else if (max < 0 && min < 0) {
+        return - areaBelowZero;
+    }
+
+    return 0;
 }

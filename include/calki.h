@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -16,6 +18,8 @@ double compute(double(*func)(double), double x);
 double findMin(double(*func)(double));
 
 double findMax(double(*func)(double));
+
+double randRange(double min, double max);
 
 
     // FUNKCJE OBLICZAJACE CALKI
